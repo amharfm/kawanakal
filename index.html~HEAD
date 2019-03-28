@@ -1,0 +1,158 @@
+<html>
+<head>
+	<link id="hu-user-gfont" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,300italic,300,400italic,600&amp;subset=latin,latin-ext" rel="stylesheet" type="text/css">
+	<style>
+		div,p,option,select {
+			text-align:center;
+			font-family: 'Source Sans Pro';
+		}
+	</style>
+
+	<link href="http://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet" type="text/css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="https://rikdevos.com/demos/youtube-video-playlist/youtube-video-player/packages/icons/css/icons.min.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="https://rikdevos.com/demos/youtube-video-playlist/youtube-video-player/css/youtube-video-player.min.css" />
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script type="text/javascript" src="https://rikdevos.com/demos/youtube-video-playlist/youtube-video-player/js/youtube-video-player.jquery.min.js"></script>
+	<link rel="stylesheet" type="text/css" media="screen" href="https://rikdevos.com/demos/youtube-video-playlist/youtube-video-player/packages/perfect-scrollbar/perfect-scrollbar.css" />
+	<script type="text/javascript" src="https://rikdevos.com/demos/youtube-video-playlist/youtube-video-player/packages/perfect-scrollbar/jquery.mousewheel.js"></script>
+	<script type="text/javascript" src="https://rikdevos.com/demos/youtube-video-playlist/youtube-video-player/packages/perfect-scrollbar/perfect-scrollbar.js"></script>
+
+</head>
+<body onload="mulai()">
+	<p><font size="5">Episode:</font>
+	  <select id="pilih_ep">
+	  	<option selected disabled>Pilih...</option>
+	  </select>
+	</p>
+	<div id="info" style="height:400px; background-color:#eaeaea; overflow: scroll;">
+		<img id="poster" src="./bahan/kawanakal-0.png" width="300">
+		<table border="0" align="center" cellspacing="0" cellpadding="0" width="80%">
+			<tr>
+				<td>Topik</td>
+				<td>:</td>
+				<td id="topik"></td>
+			</tr>
+			<tr>
+				<td>Tanggal</td>
+				<td>:</td>
+				<td id="tanggal"></td>
+			</tr>
+			<tr>
+				<td>Platform</td>
+				<td>:</td>
+				<td id="platform"></td>
+			</tr>
+			<tr>
+				<td colspan="3">Diskusiwan&nbsp;:</td>
+			</tr>
+			<tr>
+				<td colspan="3">
+					<ul id="diskusiwan"></ul>
+				</td>
+			</tr>
+		</table>
+	</div>
+
+	<!-- naininih Youtube -->
+	<div id="myList"></div>
+	<div id="descnya" style="text-align: left;"></div>
+
+	<script>
+   	// https://stackoverflow.com/questions/49634850/javascript-convert-plain-text-links-to-clickable-links
+	  function convertLinks(text) {
+	    var link = text.match(/(?:www|https?)[^\s]+/g);
+	        aLink = [];
+	        replacedText = text;
+	    if (link != null) {
+	      for (i=0;i<link.length;i++) {
+	        var replace;
+	        if (!( link[i].match(/(http(s?))\:\/\//) ) ) { replace = 'http://' + link[i]; } else { replace = link[i] };
+	        var linkText = replace.split('/')[2];
+	        if (linkText.substring(0,3) == "www") { linkText = linkText.replace('www.','') };
+	        aLink.push('<a href="' + replace + '" target="_blank">' + linkText + '</a>');
+	        replacedText = replacedText.split(link[i]).join(aLink[i]);
+	      }
+
+	      return replacedText
+		    } else {
+		      return text
+		    }
+	  }
+
+
+      function mulai(){
+      	var xmlhttp = new XMLHttpRequest();
+		var url = "./daftar.json";
+
+		xmlhttp.onreadystatechange = function() {
+		    if (this.readyState == 4 && this.status == 200) {
+		        var o = JSON.parse(this.responseText);
+		        isi_drop(o);
+		    }
+		};
+		xmlhttp.open("GET", url, true);
+		xmlhttp.send();
+
+		function isi_drop(o) {
+			var yangkeberapa = document.getElementById("pilih_ep").value;
+		  // console.log(yangkeberapa)  
+
+		  var ep=1;
+	      o.episode.forEach(function(e){
+	  		document.getElementById('pilih_ep').innerHTML += "<option value='"+(Number(ep-1))+"'>"+ep+"</option>";
+      		ep++;
+	      })
+
+		  var v = 1
+	      document.getElementById('pilih_ep').onchange = function(){
+			var yangkeberapa = document.getElementById("pilih_ep").value;
+	      	//poster
+	      	document.getElementById('poster').setAttribute("src", "./bahan/kawanakal-"+(Number(yangkeberapa)+1)+ ".png");
+
+			// playlist when ordered
+			  $('#myList').youtube_video({
+			    playlist: o.channel,
+			    first_video: yangkeberapa,
+				playlist_type: 'horizontal',
+			    description_toggle: true,
+			    share_control: true,
+				load_more_text: 'Selanjutnya..',
+			    show_playlist: 'auto',
+				related: false,
+				show_channel_in_title: false,
+				show_annotations: true,
+				autoplay: false,
+				on_load: function(e) {
+					document.getElementById('descnya').innerHTML = "";
+					document.getElementById('descnya').innerHTML = "<h3>Deskripsi</h3>";
+					document.getElementById('descnya').innerHTML += convertLinks(document.getElementsByClassName('yesp-description-toggle-inside')[0].innerHTML);
+
+					$('#myList').youtube_video_play();
+					var wait = setInterval(function(){
+						clearInterval(wait);
+						$('#myList').youtube_video_seek(o.episode[yangkeberapa].mulainya);
+					}, 2000)
+				}
+			  });		  
+
+	      	//data
+		      	document.getElementById("topik").innerText = o.episode[yangkeberapa].topik;
+		      	document.getElementById("tanggal").innerText = o.episode[yangkeberapa].waktu;
+		      	document.getElementById("platform").innerText = o.episode[yangkeberapa].platform;
+
+	      	//bendera
+	      	var dari="https://www.countryflags.io/";
+	      	var i=1;
+	      	document.getElementById("diskusiwan").innerHTML = "";
+	      	document.getElementById("descnya").innerHTML = "";
+	      	o.episode[yangkeberapa].panelis.forEach(function(j){
+	      		document.getElementById('diskusiwan').appendChild(document.createElement("li")).id="p_"+i;
+	      		document.getElementById("p_"+i).innerHTML += "<img src='"+dari+j.kode+"/flat/16.png"+"'/>&nbsp;" +  j.nama + "<br/>" + j.asal + "<br/>" + "<a target='new' href='"+j.info+"'>" + "CV" + "</a>" + "<br/>" + "<a target='new' href='"+j.material+"'>" + "Materi" + "</a>";
+	      		i++;
+	      	})
+	      }
+		}
+      }
+
+    </script>
+</body></html>
