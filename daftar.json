@@ -119,4 +119,25 @@
 			"material":"http://adh.sagepub.com/cgi/content/abstract/5/2/132"
 		}
 	]}
+	,{"topik":"Brainstorming Zonasi PPDB",
+	"idv_di_play":4,
+	"mulainya":0,
+	"waktu": "10/5/2019",
+	"platform": "Google Hangout",
+	"panelis":[
+		{
+			"nama":"M. F. Amhar",
+			"asal":"PPI Finlandia",
+			"kode":"fi",
+			"info":"https://linkedin.com/in/amharfm/",
+			"material":"https://twitter.com/amhar_FM/status/1124357944265592832"
+		}
+		,{
+			"nama":"Al Adi Fitrah",
+			"asal":"PPI Australia",
+			"kode":"au",
+			"info":"https://instagram.com/al.adifitrah",
+			"material":"-"
+		}
+	]}
 ]}
